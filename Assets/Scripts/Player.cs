@@ -12,27 +12,34 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundDistance = 0.25f;
     [SerializeField] private float jumpTime = 0.3f;
 
-    [SerializeField] private float crouchHeight = 0.5f;
-
     private bool isGrounded = false;
     private bool isJumping = false;
     private float jumpTimer;
+    private int jumpsPerformed = 0;
+    public int maxJumps = 1;
 
     private void Update()
     {
         isGrounded = Physics2D.OverlapCircle(feetPos.position, groundDistance, groundLayer);
-        if(isGrounded && Input.GetButtonDown("Jump"))
+
+        if (isGrounded)
+        {
+            jumpsPerformed = 0;
+        }
+
+        if (Input.GetButtonDown("Jump") && jumpsPerformed < maxJumps)
         {
             isJumping = true;
             rb.velocity = Vector2.up * jumpForce;
+            jumpsPerformed++;
+            jumpTimer = 0f;
         }
 
-        if(isJumping && Input.GetButton("Jump"))
+        if (isJumping && Input.GetButton("Jump"))
         {
             if (jumpTimer < jumpTime)
             {
                 rb.velocity = Vector2.up * jumpForce;
-
                 jumpTimer += Time.deltaTime;
             }
             else
@@ -41,23 +48,12 @@ public class Player : MonoBehaviour
             }
         }
 
-        if(Input.GetButtonUp("Jump"))
+        if (Input.GetButtonUp("Jump"))
         {
             isJumping = false;
-            jumpTimer = 0;
-        }
-    
-        if (isGrounded && Input.GetButton("Crouch"))
-        {
-            GFX.localScale = new Vector3(GFX.localScale.x, crouchHeight, GFX.localScale.z);
         }
 
         if (isJumping)
-        {
-            GFX.localScale = new Vector3(GFX.localScale.x, 1f, GFX.localScale.z);
-        }
-
-        if (Input.GetButton("Crouch"))
         {
             GFX.localScale = new Vector3(GFX.localScale.x, 1f, GFX.localScale.z);
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -9,12 +10,17 @@ public class Spawner : MonoBehaviour
     public float speed = 7f;
 
     private float timeUntilSpawn;
+    private List<GameObject> spawnedObjects = new List<GameObject>();
 
     private void Update()
     {
         if (GameManager.Instance.isPlaying)
         {
             SpawnLoop();
+        }
+        else
+        {
+            DestroyAllSpawnedObjects();
         }
     }
 
@@ -31,7 +37,6 @@ public class Spawner : MonoBehaviour
 
     private void Spawn()
     {
-        
         int randomIndex = Random.Range(0, 3);
 
         if (randomIndex == 0 || randomIndex == 1)
@@ -40,14 +45,28 @@ public class Spawner : MonoBehaviour
             GameObject spawnedObstacle = Instantiate(obstacleToSpawn, transform.position, Quaternion.identity);
             Rigidbody2D obstacleRB = spawnedObstacle.GetComponent<Rigidbody2D>();
             obstacleRB.velocity = Vector2.left * speed;
+
+            spawnedObjects.Add(spawnedObstacle);
         }
-        else if (randomIndex == 2) 
+        else if (randomIndex == 2)
         {
             GameObject coinToSpawn = coinPrefabs[Random.Range(0, coinPrefabs.Length)];
             GameObject spawnedCoin = Instantiate(coinToSpawn, transform.position, Quaternion.identity);
             Rigidbody2D coinRB = spawnedCoin.GetComponent<Rigidbody2D>();
             coinRB.velocity = Vector2.left * speed;
+
+            spawnedObjects.Add(spawnedCoin);
         }
+    }
+
+    private void DestroyAllSpawnedObjects()
+    {
+        foreach (var obj in spawnedObjects)
+        {
+            Destroy(obj);
+        }
+
+        spawnedObjects.Clear();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
